@@ -11,6 +11,7 @@ import { GlobalErrorBoundary } from './components/GlobalErrorBoundary';
 import { configControl } from './services/admin/ConfigControl';
 import { Maintenance } from './pages/Maintenance';
 import { hydrationManager } from './services/sync/HydrationManager';
+import { AuthFlow } from './services/real/auth/AuthFlow';
 
 const DemoModeBadge = () => {
     if (!USE_MOCKS) return null;
@@ -29,14 +30,15 @@ const App: React.FC = () => {
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [isHydrated, setIsHydrated] = useState(hydrationManager.isFullyHydrated());
 
-  // Inicializa sincronização de presença e batimento cardíaco
   useAuthSync();
 
   useEffect(() => {
     const unsub = hydrationManager.subscribe(setIsHydrated);
     
     const initializeApp = async () => {
-      // Timeout de segurança: Se em 5s o boot não responder, força isReady
+      // Garante que o estado de convidado seja tratado imediatamente
+      AuthFlow.initialize();
+
       const bootTimeout = setTimeout(() => {
         if (!isReady) {
             console.warn("⏱️ [Boot] Timeout de segurança atingido. Forçando entrada...");
@@ -46,7 +48,6 @@ const App: React.FC = () => {
       }, 5000);
 
       try {
-        // No HashRouter, os parâmetros podem estar no hash ou no search global
         const getParam = (key: string) => {
             const searchParams = new URLSearchParams(window.location.search);
             if (searchParams.has(key)) return searchParams.get(key);
@@ -60,11 +61,7 @@ const App: React.FC = () => {
         };
 
         const forceOpen = getParam('ignoreMaintenance') === 'true' || getParam('force') === 'true';
-
-        // Consulta o Plano de Controle
         const config = await configControl.boot();
-        
-        // Só ativa manutenção se explicitamente configurado, sem bypass e fora de mock
         const shouldShowMaintenance = config.maintenanceMode === true && !USE_MOCKS && !forceOpen;
         
         setIsMaintenance(shouldShowMaintenance);
@@ -74,15 +71,12 @@ const App: React.FC = () => {
       } finally {
         clearTimeout(bootTimeout);
         setIsReady(true);
-        if (USE_MOCKS || !localStorage.getItem('auth_token')) {
-            setIsHydrated(true);
-        }
       }
     };
     
     initializeApp();
     return () => unsub();
-  }, [isReady]);
+  }, []);
 
   if (!isReady || (!isHydrated && !USE_MOCKS)) {
     return (

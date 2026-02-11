@@ -5,11 +5,15 @@ import { AccountSyncService } from '../services/sync/AccountSyncService';
 import { SyncState } from '../services/sync/SyncState';
 import { socketService } from '../services/socketService';
 import { RealtimePaymentHandler } from '../services/real/notifications/RealtimePaymentHandler';
+import { hydrationManager } from '../services/sync/HydrationManager';
 
 export const useAuthSync = () => {
   useEffect(() => {
     const email = authService.getCurrentUserEmail();
     
+    // Atualiza o HydrationManager sobre o estado de autenticação
+    hydrationManager.setAuthenticationStatus(!!email);
+
     // 1. Serviços de tempo real apenas se logado
     if (email) {
         socketService.connect();
