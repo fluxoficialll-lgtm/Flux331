@@ -1,60 +1,34 @@
-[debug] [2026-02-11T04:47:22.256Z] ----------------------------------------------------------------------
-[debug] [2026-02-11T04:47:22.257Z] Command:       /nix/store/ws50yvm6vzlzf7jzz6n7xh4szddrack1-nodejs-20.19.1/bin/node /nix/store/c776mhyhgykcld7p90ajrka149ifn61a-firebase-tools-14.26.0/lib/node_modules/firebase-tools/lib/bin/firebase.js init hosting
-[debug] [2026-02-11T04:47:22.258Z] CLI Version:   14.26.0
-[debug] [2026-02-11T04:47:22.258Z] Platform:      linux
-[debug] [2026-02-11T04:47:22.258Z] Node Version:  v20.19.1
-[debug] [2026-02-11T04:47:22.258Z] Time:          Wed Feb 11 2026 04:47:22 GMT+0000 (Coordinated Universal Time)
-[debug] [2026-02-11T04:47:22.258Z] ----------------------------------------------------------------------
+[debug] [2026-02-11T23:05:05.177Z] ----------------------------------------------------------------------
+[debug] [2026-02-11T23:05:05.179Z] Command:       /nix/store/ws50yvm6vzlzf7jzz6n7xh4szddrack1-nodejs-20.19.1/bin/node /nix/store/c776mhyhgykcld7p90ajrka149ifn61a-firebase-tools-14.26.0/lib/node_modules/firebase-tools/lib/bin/firebase.js login:ci
+[debug] [2026-02-11T23:05:05.179Z] CLI Version:   14.26.0
+[debug] [2026-02-11T23:05:05.179Z] Platform:      linux
+[debug] [2026-02-11T23:05:05.179Z] Node Version:  v20.19.1
+[debug] [2026-02-11T23:05:05.180Z] Time:          Wed Feb 11 2026 23:05:05 GMT+0000 (Coordinated Universal Time)
+[debug] [2026-02-11T23:05:05.180Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2026-02-11T04:47:22.261Z] No OAuth tokens found
-[debug] [2026-02-11T04:47:22.262Z] No OAuth tokens found
+[debug] [2026-02-11T23:05:05.438Z] No OAuth tokens found
+[debug] [2026-02-11T23:05:05.439Z] No OAuth tokens found
 [error] Failed to fetch Firebase Project from current Studio Workspace: Unable to refresh auth: not yet authenticated.
+[warn] ⚠  Authenticating with a `login:ci` token is deprecated and will be removed in a future major version of `firebase-tools`. Instead, use a service account key with `GOOGLE_APPLICATION_CREDENTIALS`: https://cloud.google.com/docs/authentication/getting-started 
 [info] 
-     ######## #### ########  ######## ########     ###     ######  ########
-     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
-     ######    ##  ########  ######   ########  #########  ######  ######
-     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
-     ##       #### ##     ## ######## ########  ##     ##  ######  ########
-
-You're about to initialize a Firebase project in this directory:
-
-  /home/user/Flux325
-
+[info] Visit this URL on this device to log in:
+[info] https://accounts.google.com/o/oauth2/auth?client_id=563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com&scope=email%20openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloudplatformprojects.readonly%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Ffirebase%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloud-platform&response_type=code&state=32515264&redirect_uri=http%3A%2F%2Flocalhost%3A9005
 [info] 
-=== Project Setup
+[info] Waiting for authentication...
+[debug] [2026-02-11T23:05:08.912Z] >>> [apiv2][query] POST https://auth.firebase.tools/attest [none]
+[debug] [2026-02-11T23:05:08.913Z] >>> [apiv2][body] POST https://auth.firebase.tools/attest {"session_id":"0681c872-9d15-4bbb-abcd-f9199b346a69"}
+[debug] [2026-02-11T23:05:09.090Z] <<< [apiv2][status] POST https://auth.firebase.tools/attest 200
+[debug] [2026-02-11T23:05:09.090Z] <<< [apiv2][body] POST https://auth.firebase.tools/attest {"token":"kArIuE2J_lcV8FrolsQAbmnyDTzO2k5PkWqRAZfo504"}
 [info] 
-[info] First, let's associate this project directory with a Firebase project.
-[info] You can create multiple project aliases by running firebase use --add, 
+[info] To sign in to the Firebase CLI:
 [info] 
-[debug] [2026-02-11T05:02:35.297Z] ----------------------------------------------------------------------
-[debug] [2026-02-11T05:02:35.299Z] Command:       /nix/store/ws50yvm6vzlzf7jzz6n7xh4szddrack1-nodejs-20.19.1/bin/node /nix/store/c776mhyhgykcld7p90ajrka149ifn61a-firebase-tools-14.26.0/lib/node_modules/firebase-tools/lib/bin/firebase.js init hosting
-[debug] [2026-02-11T05:02:35.299Z] CLI Version:   14.26.0
-[debug] [2026-02-11T05:02:35.299Z] Platform:      linux
-[debug] [2026-02-11T05:02:35.299Z] Node Version:  v20.19.1
-[debug] [2026-02-11T05:02:35.299Z] Time:          Wed Feb 11 2026 05:02:35 GMT+0000 (Coordinated Universal Time)
-[debug] [2026-02-11T05:02:35.299Z] ----------------------------------------------------------------------
-[debug] 
-[debug] [2026-02-11T05:02:35.496Z] No OAuth tokens found
-[debug] [2026-02-11T05:02:35.496Z] No OAuth tokens found
-[error] Failed to fetch Firebase Project from current Studio Workspace: Unable to refresh auth: not yet authenticated.
+[info] 1. Take note of your session ID:
 [info] 
-     ######## #### ########  ######## ########     ###     ######  ########
-     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
-     ######    ##  ########  ######   ########  #########  ######  ######
-     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
-     ##       #### ##     ## ######## ########  ##     ##  ######  ########
-
-You're about to initialize a Firebase project in this directory:
-
-  /home/user/Flux325
-
-Before we get started, keep in mind:
-
-  * You are initializing within an existing Firebase project directory
-
+[info]    0681C
 [info] 
-=== Project Setup
+[info] 2. Visit the URL below on any device and follow the instructions to get your code:
 [info] 
-[info] First, let's associate this project directory with a Firebase project.
-[info] You can create multiple project aliases by running firebase use --add, 
+[info]    https://auth.firebase.tools/login?code_challenge=H1VmN8Bo2kmvYyXQHhCfYgPQsQx4coVoY9Zn20MZeB0&session=0681c872-9d15-4bbb-abcd-f9199b346a69&attest=kArIuE2J_lcV8FrolsQAbmnyDTzO2k5PkWqRAZfo504
+[info] 
+[info] 3. Paste or enter the authorization code below once you have it:
 [info] 

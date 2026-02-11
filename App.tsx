@@ -12,6 +12,7 @@ import { configControl } from './services/admin/ConfigControl';
 import { Maintenance } from './pages/Maintenance';
 import { hydrationManager } from './services/sync/HydrationManager';
 import { AuthFlow } from './services/real/auth/AuthFlow';
+import { logService } from './services/audit/LogService'; // Importa o serviço de log
 
 const DemoModeBadge = () => {
     if (!USE_MOCKS) return null;
@@ -26,6 +27,7 @@ const DemoModeBadge = () => {
 };
 
 const App: React.FC = () => {
+  logService.info('Boot: Aplicação iniciada');
   const [isReady, setIsReady] = useState(false);
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [isHydrated, setIsHydrated] = useState(hydrationManager.isFullyHydrated());
@@ -33,21 +35,26 @@ const App: React.FC = () => {
   useAuthSync();
 
   useEffect(() => {
-    const unsub = hydrationManager.subscribe(setIsHydrated);
+    logService.info('Boot: useEffect principal montado');
+    const unsub = hydrationManager.subscribe(status => {
+        setIsHydrated(status);
+        logService.info(`Boot: Estado de hidratação alterado para ${status}`);
+    });
     
     const initializeApp = async () => {
-      // Garante que o estado de convidado seja tratado imediatamente
+      logService.info('Boot: Iniciando AuthFlow...');
       AuthFlow.initialize();
 
       const bootTimeout = setTimeout(() => {
         if (!isReady) {
-            console.warn("⏱️ [Boot] Timeout de segurança atingido. Forçando entrada...");
+            logService.warn('Boot: Timeout de segurança atingido. Forçando inicialização...');
             setIsReady(true);
             setIsMaintenance(false);
         }
       }, 5000);
 
       try {
+        logService.info('Boot: Verificando modo de manutenção...');
         const getParam = (key: string) => {
             const searchParams = new URLSearchParams(window.location.search);
             if (searchParams.has(key)) return searchParams.get(key);
@@ -65,17 +72,22 @@ const App: React.FC = () => {
         const shouldShowMaintenance = config.maintenanceMode === true && !USE_MOCKS && !forceOpen;
         
         setIsMaintenance(shouldShowMaintenance);
+        logService.info(`Boot: Modo de manutenção definido como ${shouldShowMaintenance}`);
       } catch (e) {
-        console.error("Erro no boot do sistema:", e);
+        logService.error('Boot: Erro ao verificar manutenção', e);
         setIsMaintenance(false);
       } finally {
         clearTimeout(bootTimeout);
         setIsReady(true);
+        logService.info('Boot: Aplicação pronta para ser exibida');
       }
     };
     
     initializeApp();
-    return () => unsub();
+    return () => {
+        unsub();
+        logService.info('Boot: useEffect principal desmontado');
+    };
   }, []);
 
   if (!isReady || (!isHydrated && !USE_MOCKS)) {
