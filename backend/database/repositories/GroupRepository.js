@@ -35,8 +35,17 @@ export const GroupRepository = {
         return mapRowToGroup(res.rows[0]);
     },
 
+    /**
+     * CORREÇÃO: A função list() foi alterada para evitar a busca ilimitada de dados.
+     * Agora, ela retorna apenas os 100 grupos públicos mais ativos,
+     * prevenindo o travamento do servidor e garantindo um carregamento inicial rápido.
+     * Esta lógica é um alias seguro para a função ranking('public').
+     */
     async list() {
-        const res = await query('SELECT * FROM groups ORDER BY member_count DESC');
+        const filter = "WHERE status = 'active' AND (data->>'isPrivate')::boolean = false AND is_vip = false";
+        const res = await query(`
+            SELECT * FROM groups ${filter} ORDER BY member_count DESC LIMIT 100
+        `);
         return res.rows.map(mapRowToGroup);
     },
 
