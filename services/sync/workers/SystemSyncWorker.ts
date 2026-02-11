@@ -18,7 +18,13 @@ export const SystemSyncWorker = {
         try {
             // Executamos a sincronização de integridade primeiro pois ela popula o perfil
             await Promise.all([
-                this.syncIntegrityStatus(email),
+                this.syncIntegrityStatus(email).catch(error => {
+                    console.error("Critical Auth Sync Failure:", error);
+                    // Notifica o sistema que o estado de autenticação é falso devido ao erro
+                    hydrationManager.setAuthenticationStatus(false);
+                    // Rethrow ou lida com o erro para que o finally ainda possa marcar o Auth
+                    throw error;
+                }),
                 this.syncNotifications()
             ]);
         } catch (e) {
@@ -53,9 +59,14 @@ export const SystemSyncWorker = {
                     localStorage.setItem('cached_user_profile', JSON.stringify(user));
                     localStorage.setItem('user_id', user.id);
                 }
+            } else {
+                // Se a API falhar em retornar OK, consideramos um erro de sincronização
+                throw new Error(`API returned status ${res.status}`);
             }
         } catch (e) {
             console.warn("⚠️ [Sync] Falha ao verificar integridade, mantendo estado local.");
+            // Propaga o erro para ser pego pelo catch no Promise.all
+            throw e;
         }
     }
 };
