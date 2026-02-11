@@ -1,44 +1,102 @@
-
 /**
- * Env Service
- * Detecta se o app está rodando em um ambiente de demonstração (como o preview da IA)
- * ou em um ambiente estável (localhost ou produção real).
+ * @file envService.ts
+ * @description Detecta e fornece o contexto do ambiente de execução (Produção, Staging, Local) e o provedor de hospedagem (Render, Vercel, Firebase, etc.).
+ *              Isso permite que a aplicação adapte seu comportamento, como a seleção de URLs de API e configurações específicas, de forma dinâmica.
  */
-export const envService = {
-    isDemoMode: (): boolean => {
-        try {
-            // 1. Prioridade absoluta: Override manual via URL ou LocalStorage
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('demo') === 'true' || params.get('mock') === 'true') return true;
-            if (localStorage.getItem('force_mock_mode') === 'true') return true;
 
-            const hostname = window.location.hostname;
-            const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('192.168.');
-            
-            // Se estiver em um iframe, quase certamente é o preview da IA
-            const isIframe = window.self !== window.top;
-            
-            // Se a URL contém "stackblitz", "webcontainer", "v0" ou URLs de preview dinâmicas
-            const isPreviewEnv = hostname.includes('webcontainer-api.io') || 
-                               hostname.includes('stackblitz.io') || 
-                               hostname.includes('v0.io') ||
-                               hostname.includes('netlify.app') ||
-                               hostname.includes('vercel.app');
+type HostingProvider = 'Render' | 'Vercel' | 'Netlify' | 'Firebase' | 'Local' | 'Unknown';
+type EnvironmentType = 'Production' | 'Staging' | 'Development';
 
-            // Se não houver VITE_API_URL configurada ou se estivermos em ambiente de preview, forçamos Mock
-            // @ts-ignore
-            const apiConfigured = !!import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== "";
+class EnvironmentService {
+    private static instance: EnvironmentService;
+    private readonly provider: HostingProvider;
+    private readonly environment: EnvironmentType;
+    private readonly apiUrl: string;
 
-            if (!apiConfigured || isIframe || isPreviewEnv) return true;
-
-            return false;
-        } catch (e) {
-            return true; // Fallback seguro para modo demo
+    private constructor() {
+        // Detecção do Provedor de Hospedagem
+        if (process.env.RENDER) {
+            this.provider = 'Render';
+        } else if (process.env.VERCEL) {
+            this.provider = 'Vercel';
+        } else if (process.env.NETLIFY) {
+            this.provider = 'Netlify';
+        } else if (process.env.FIREBASE_CONFIG) {
+            this.provider = 'Firebase';
+        } else {
+            this.provider = 'Local';
         }
-    },
-    
-    setForceMock: (enabled: boolean) => {
-        localStorage.setItem('force_mock_mode', enabled ? 'true' : 'false');
-        window.location.reload();
+
+        // Detecção do Tipo de Ambiente (Produção/Desenvolvimento)
+        // A VITE_API_URL que definimos no .env agora controla isso.
+        const rawApiUrl = process.env.VITE_API_URL || 'http://localhost:3001';
+        if (rawApiUrl.includes('localhost') || rawApiUrl.includes('127.0.0.1')) {
+            this.environment = 'Development';
+        } else if (rawApiUrl.includes('staging')) {
+            this.environment = 'Staging';
+        } else {
+            this.environment = 'Production';
+        }
+        
+        this.apiUrl = rawApiUrl;
+
+        console.log(`[ENV] Contexto detectado: ${this.provider} (${this.environment})`);
+        console.log(`[ENV] API URL: ${this.apiUrl}`);
     }
-};
+
+    /**
+     * Retorna a instância única do serviço (Singleton Pattern).
+     */
+    public static getInstance(): EnvironmentService {
+        if (!EnvironmentService.instance) {
+            EnvironmentService.instance = new EnvironmentService();
+        }
+        return EnvironmentService.instance;
+    }
+
+    /**
+     * Retorna o provedor de hospedagem detectado.
+     * @returns {HostingProvider} O nome do provedor (ex: 'Render', 'Local').
+     */
+    public getHostingProvider(): HostingProvider {
+        return this.provider;
+    }
+
+    /**
+     * Retorna o tipo de ambiente.
+     * @returns {EnvironmentType} 'Production', 'Staging', ou 'Development'.
+     */
+    public getEnvironmentType(): EnvironmentType {
+        return this.environment;
+    }
+
+    /**
+     * Retorna a URL base da API para o ambiente atual.
+     */
+    public getApiUrl(): string {
+        return this.apiUrl;
+    }
+
+    public isProduction(): boolean {
+        return this.environment === 'Production';
+    }
+
+    public isDevelopment(): boolean {
+        return this.environment === 'Development';
+    }
+
+    public isLocal(): boolean {
+        return this.provider === 'Local';
+    }
+
+    public isRender(): boolean {
+        return this.provider === 'Render';
+    }
+
+    public isVercel(): boolean {
+        return this.provider === 'Vercel';
+    }
+}
+
+// Exporta uma instância única para ser usada em toda a aplicação.
+export const envService = EnvironmentService.getInstance();

@@ -9,6 +9,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:prod": "npm run clean && vite build",
+    "build:firebase": "vite build --mode firebase",
     "start": "node server.js",
     "clean": "rm -rf dist node_modules"
   },
